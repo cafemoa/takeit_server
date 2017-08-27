@@ -128,6 +128,9 @@ DATABASES = {
     }
 }
 '''
+import pymysql
+pymysql.install_as_MySQLdb()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -137,7 +140,6 @@ DATABASES = {
     }
 }
 '''
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 

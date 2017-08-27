@@ -59,7 +59,7 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
 class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BeverageOption
-        fields = ('beverage_id', 'whipping_cream', 'is_ice', 'size')
+        fields = ('beverage_id', 'whipping_cream', 'is_ice', 'size','shot_num')
 
 class OrderSerializer(serializers.HyperlinkedModelSerializer):
     orderer_username = serializers.SerializerMethodField('GetOrdererUserName')

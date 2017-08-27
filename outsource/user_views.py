@@ -111,7 +111,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             amount_price=0
             for option_info in options:
                 option=BeverageOption.objects.create(beverage_id=option_info['beverage'],is_ice=option_info['is_ice'],
-                                                     size=option_info['size'],whipping_cream=option_info['whipping_cream'])
+                                                     size=option_info['size'],whipping_cream=option_info['whipping_cream'], shot_num=option_info['shot_num'])
                 option.save()
                 order.options.add(option)
                 size_price=option.beverage.price.split()

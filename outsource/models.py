@@ -162,4 +162,5 @@ class BeverageOption(models.Model):
     whipping_cream=models.BooleanField(default=False)
     is_ice = models.BooleanField(default=False)
     size=models.IntegerField(default=0)
+    shot_num=models.IntegerField(default=0)
 
