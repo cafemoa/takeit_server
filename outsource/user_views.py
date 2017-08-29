@@ -89,11 +89,11 @@ class CouponViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-
     def create(self,request,cafe_pk): #  POST : order_beverage
         user = User.objects.get(pk=request.user.pk)
         cafe=Cafe.objects.get(pk=cafe_pk)
         serializer=OrderSerializer(data=request.data)
+
         last_order=Order.objects.filter(cafe=cafe).order_by('-order_time').first()
         last_order_date=last_order.order_time.date()
         now_order_date=timezone.now().today().date()
@@ -106,17 +106,18 @@ class OrderViewSet(viewsets.ModelViewSet):
             order=serializer.save(orderer_id=request.user.pk,cafe_id=cafe_pk,order_num=order_num)
             cafe.current_order_num += 1
             cafe.save()
-            options = request.data['options']
 
+            options = request.data.get('options')
             amount_price=0
             for option_info in options:
                 option=BeverageOption.objects.create(beverage_id=option_info['beverage'],is_ice=option_info['is_ice'],
                                                      size=option_info['size'],whipping_cream=option_info['whipping_cream'], shot_num=option_info['shot_num'])
+
                 option.save()
                 order.options.add(option)
                 size_price=option.beverage.price.split()
                 price=size_price[option_info['size']]
-                price=int(size_price.split(':')[1])
+                price=int(price.split(':')[1])
                 amount_price += price
 
             order.amount_price=amount_price
