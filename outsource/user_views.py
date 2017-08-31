@@ -94,13 +94,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         cafe=Cafe.objects.get(pk=cafe_pk)
         serializer=OrderSerializer(data=request.data)
 
-        last_order=Order.objects.filter(cafe=cafe).order_by('-order_time').first()
-        last_order_date=last_order.order_time.date()
-        now_order_date=timezone.now().today().date()
-        if last_order_date==now_order_date:
-            order_num=last_order.order_num+1
-        else :
-            order_num=0
+        last_order = Order.objects.filter(cafe=cafe)
+
+        if last_order.count()==0 :
+            order_num = 0
+
+        else:
+            last_order = last_order.order_by('-order_time').first()
+            last_order_date = last_order.order_time.date()
+            now_order_date = timezone.now().today().date()
+            if last_order_date == now_order_date:
+                order_num = last_order.order_num + 1
+            else:
+                order_num = 0
+
 
         if serializer.is_valid():
             order=serializer.save(orderer_id=request.user.pk,cafe_id=cafe_pk,order_num=order_num)
@@ -123,9 +130,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.amount_price=amount_price
             order.save()
 
-            #Device = get_device_model()
-            #cafeDevice = Device.objects.get(user=cafe)
-            #cafeDevice.send_message({'message': '음료가 주문되었습니다!'}, collapse_key="음료가 주문되었습니다!")
+            Device = get_device_model()
+            cafeDevice = Device.objects.filter(user=cafe)
+            if not cafeDevice.count()==0 :
+                cafeDevice=cafeDevice.first()
+                cafeDevice.send_message({'message': '음료가 주문되었습니다!'}, collapse_key="음료가 주문되었습니다!")
             if cafe.can_use_coupon :
                 if order.payment_type==0 :
                     coupon = Coupon.objects.filter(cafe=order.cafe, user=user)

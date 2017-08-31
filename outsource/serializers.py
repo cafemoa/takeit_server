@@ -2,9 +2,10 @@ from rest_framework import serializers
 from outsource.models import *
 
 class DeviceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = MyDevice
-        fields = ('dev_id','reg_id','name','is_active', 'user')
+        fields = ('dev_id','reg_id','name','is_active')
 
 class BeverageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -57,16 +58,19 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
                   'gender','name','phone_number','email','profile_picture')
 
 class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
+    beverage_name = serializers.SerializerMethodField('GetBeverageName')
+    def GetBeverageName(self, instance):
+        return instance.beverage.name
     class Meta:
         model = BeverageOption
-        fields = ('beverage_id', 'whipping_cream', 'is_ice', 'size','shot_num')
+        fields = ('beverage_id', 'beverage_name','whipping_cream', 'is_ice', 'size','shot_num')
 
 class OrderSerializer(serializers.HyperlinkedModelSerializer):
     orderer_username = serializers.SerializerMethodField('GetOrdererUserName')
     options = BeverageOptionSerializer(many=True,read_only=True)
 
     def GetOrdererUserName(self, instance):
-        return instance.orderer.username
+        return instance.orderer.name
 
     def create(self, validated_data):
         return Order.objects.create(**validated_data)

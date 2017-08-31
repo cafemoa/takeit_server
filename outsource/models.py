@@ -121,7 +121,7 @@ class Order(models.Model):
         (2, '이벤트결제')
     )
     amount_price=models.IntegerField(default=0)
-    payment_type=models.BooleanField(default=0,choices=PAYMENT_TYPE_CHOICE)
+    payment_type=models.IntegerField(default=0,choices=PAYMENT_TYPE_CHOICE)
 
     def __str__(self):
         if self.options.count()>1 :
