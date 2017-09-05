@@ -138,9 +138,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                     cafeDevice.send_message({'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' +
                                                         order.options.first().beverage.name + " 및 " + str(order.options.count() - 1) + "잔" + '이 주문되었습니다!'},
                                                 collapse_key="음료가 주문되었습니다!")
-                elif order.options.count() == 0:
+                elif order.options.count() == 1:
                         cafeDevice.send_message({
-                                                    'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' + order.options.first().beverage.name + '이 주문되었습니다!'}
+                                                    'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
             if cafe.can_use_coupon :
                 if order.payment_type==0 :

@@ -25,8 +25,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             if order.options.count() > 1:
                 cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및 " + str(
                     order.options.count() - 1) + "잔" + '이 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
-            elif order.options.count() == 0:
-                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '이(가) 준비되었습니다!'}
+            elif order.options.count() == 1:
+                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '(이)가 준비되었습니다!'}
                                             ,collapse_key="주문하신 음료가 준비되었습니다!")
 
         order.is_done = True
