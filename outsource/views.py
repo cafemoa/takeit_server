@@ -28,7 +28,7 @@ class DeviceViewSet(viewsets.ModelViewSet):
     serializer_class = DeviceSerializer
 
     def create(self, request):
-        device=MyDevice.objects.filter(dev_id=request.data['dev_id'], reg_id=request.data['reg_id'])
+        device=MyDevice.objects.filter(dev_id=request.data['dev_id'])
         if device.count()==0 :
             serializer = DeviceSerializer(data=request.data)
         else :

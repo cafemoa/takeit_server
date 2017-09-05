@@ -12,7 +12,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     def list(self, request):  # GET : get_orders
         cafe = Cafe.objects.get(pk=request.user.pk)
-        queryset = cafe.orders.filter(is_done=False)
+        queryset = cafe.orders.filter(is_done=False).order_by('-order_time')
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -23,10 +23,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not cafeDevice.count() == 0:
             cafeDevice = cafeDevice.first()
             if order.options.count() > 1:
-                cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및" + str(
-                    order.options.count() - 1) + " 잔" + '가 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
+                cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및 " + str(
+                    order.options.count() - 1) + "잔" + '이 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
             elif order.options.count() == 0:
-                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '가 준비되었습니다!'}
+                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '이(가) 준비되었습니다!'}
                                             ,collapse_key="주문하신 음료가 준비되었습니다!")
 
         order.is_done = True

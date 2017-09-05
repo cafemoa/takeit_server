@@ -77,8 +77,8 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Order
-        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price')
-        read_only_fields = ('order_time','orderer_username')
+        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price', 'order_num')
+        read_only_fields = ('order_time','orderer_username', 'order_num')
 
 
 class EventSerializer(serializers.HyperlinkedModelSerializer):

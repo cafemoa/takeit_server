@@ -134,7 +134,14 @@ class OrderViewSet(viewsets.ModelViewSet):
             cafeDevice = Device.objects.filter(user=cafe)
             if not cafeDevice.count()==0 :
                 cafeDevice=cafeDevice.first()
-                cafeDevice.send_message({'message': '음료가 주문되었습니다!'}, collapse_key="음료가 주문되었습니다!")
+                if order.options.count() > 1:
+                    cafeDevice.send_message({'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' +
+                                                        order.options.first().beverage.name + " 및 " + str(order.options.count() - 1) + "잔" + '이 주문되었습니다!'},
+                                                collapse_key="음료가 주문되었습니다!")
+                elif order.options.count() == 0:
+                        cafeDevice.send_message({
+                                                    'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' + order.options.first().beverage.name + '이 주문되었습니다!'}
+                                                , collapse_key="음료가 주문되었습니다!")
             if cafe.can_use_coupon :
                 if order.payment_type==0 :
                     coupon = Coupon.objects.filter(cafe=order.cafe, user=user)
@@ -146,8 +153,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                     coupon.coupon_progress += len(options)
                     coupon.last_coupon_update = timezone.now()
                     coupon.save()
-
-
 
             serializer = OrderSerializer(order)
             return Response(serializer.data,status=status.HTTP_201_CREATED)
