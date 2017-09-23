@@ -1,5 +1,15 @@
 from rest_framework import serializers
 from outsource.models import *
+import jwt
+
+from calendar import timegm
+from datetime import datetime, timedelta
+
+from django.contrib.auth import authenticate, get_user_model
+from django.utils.translation import ugettext as _
+from rest_framework import serializers
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.compat import get_username_field, PasswordField,Serializer
 
 class DeviceSerializer(serializers.ModelSerializer):
 
@@ -56,6 +66,11 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('username','birth_year', 'birth_month', 'birth_day', 'password',
                   'gender','name','phone_number','email','profile_picture')
+        extra_kwargs = {
+            'security_question': {'write_only': True},
+            'security_question_answer': {'write_only': True},
+            'password': {'write_only': True}
+        }
 
 class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
     beverage_name = serializers.SerializerMethodField('GetBeverageName')
@@ -89,3 +104,36 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Event
         fields = ('pk','event_type','price', 'to_time', 'from_time','beverages')
+
+baseUser = get_user_model()
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
+
+class JSONWebTokenSerializer(Serializer):
+    def __init__(self, *args, **kwargs):
+        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+        self.fields['token'] = serializers.CharField()
+
+    @property
+    def username_field(self):
+        return get_username_field()
+
+    def validate(self, attrs):
+        user=SocialUser.objects.get(token=attrs.get('token')).user
+
+        if user:
+            if not user.is_active:
+                msg = _('User account is disabled.')
+                raise serializers.ValidationError(msg)
+
+            payload = jwt_payload_handler(user)
+
+            return {
+                'token': jwt_encode_handler(payload),
+                'user': user
+            }
+        else:
+            msg = _('Unable to log in with provided credentials.')
+            raise serializers.ValidationError(msg)

@@ -3,9 +3,10 @@ from outsource.models import *
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
-from outsource.serializers import DeviceSerializer
+from outsource.serializers import DeviceSerializer,JSONWebTokenSerializer
 from rest_framework.response import Response
 from rest_framework import status
+
 
 @csrf_exempt
 def payment(request):

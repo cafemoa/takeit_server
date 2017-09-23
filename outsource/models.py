@@ -164,3 +164,7 @@ class BeverageOption(models.Model):
     size=models.IntegerField(default=0)
     shot_num=models.IntegerField(default=0)
 
+class SocialUser(models.Model):
+    user=models.ForeignKey(User)
+    token=models.TextField()
+

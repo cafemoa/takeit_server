@@ -44,11 +44,16 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_jwt',
+    'rest_auth',
     'outsource',
     'fcm',
 )
+
+REST_USE_JWT = True
+
 FCM_APIKEY = "AAAATrYj7-Q:APA91bHsbOQcWIAb5F5JK1HdG0KMSh7TinfAY2SDlPVnLqMWw_ThLMiTWrqLe7nOcDv3lq6plZjidtGpMKBS5zJ8TvWcl0BUL2-UBqFImJ9b1pmLwOldpEC-_UrR0kr_Lr7bX_hE2CPN"
 FCM_DEVICE_MODEL = 'outsource.MyDevice'
 
@@ -63,6 +68,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 import datetime
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
@@ -120,6 +131,7 @@ WSGI_APPLICATION = 'cafemoa.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
 
 DATABASES = {
     'default': {

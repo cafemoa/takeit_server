@@ -11,10 +11,13 @@ from fcm.utils import get_device_model
 from rest_framework import status
 import datetime
 from django.utils import timezone
-
+from rest_framework_jwt.views import JSONWebTokenAPIView
 
 ## 해야할것 : 이벤트를 포함한 결제
 ## 안드로이드 -> 결제요청(구현필요) -> 결제페이지 -> order_beverage
+
+
+
 class UserManageViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserManageSerializer
@@ -26,8 +29,9 @@ class UserManageViewSet(viewsets.ModelViewSet):
 
     def create(self, request): # POST : user-manage
         serializer=UserManageSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
+            user=serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -179,6 +183,46 @@ class EventViewSet(viewsets.ModelViewSet): # GET : get_events
         serializer=EventSerializer(queryset,many=True)
         return Response(serializer.data)
 
+class SocialView(viewsets.ModelViewSet):
+    def create(self, request): # POST : user-manage
+        request.data['password']=request.data['username']
+
+        serializer=UserManageSerializer(data=request.data)
+        if serializer.is_valid():
+            user=serializer.save()
+            social = SocialUser(user=user, token=request.data['token'])
+            social.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ObtainJSONWebToken(JSONWebTokenAPIView):
+    serializer_class = JSONWebTokenSerializer
+
+'''
+class FacebookLoginViewSet(viewsets.ModelViewSet):
+    queryset = MyDevice.objects.all()
+
+    def create(self, request):
+        graph = facebook.GraphAPI(
+            access_token="EAARZAcWIH3J8BAMgzBzIARc4oaZAVu5QjaKZAy9L91ABwZCQLLcjE5ME8XZB0eM61MwR8gLcTlr6eKrrt6oy31bIp4NoURwrZAvVI1AfnABTJsZAlGQgvKooJNK62snCd5NmRAtKiZBHdplOcIO7UbAIw2XQqk5Q48Hk28hZABouEoMhSj34l3lsCjtwnnnJzpIHArJk4pVUDE5fpLrmSfnfe")
+
+        args = {'fields': 'id,email,gender,birthday', }
+        profile = graph.get_object('1076016075834444', **args)
+        if profile['gender']=='male':
+            profile['gender']=True
+        else :
+            profile['gender'] = False
+
+        serializer = UserManageSerializer(data=profile)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=200)
+    
+    
+    
 @csrf_exempt
 def get_search_cafe(request):
     if request.method=="POST":
@@ -204,3 +248,4 @@ def get_search_cafe(request):
 
         return HttpResponse(json.dumps(cafes), status=200)
     return HttpResponse(status=400)
+'''
