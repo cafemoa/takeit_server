@@ -4,7 +4,6 @@ from rest_framework import routers
 
 
 urlpatterns = [
-    url(r'^social-api-signup/', SocialView.as_view({'post':'create'})),
     url(r'^social-api-auth/', ObtainJSONWebToken.as_view()),
     url(r'^rest-api/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update','post':'create'})),

@@ -12,7 +12,7 @@ from rest_framework import status
 import datetime
 from django.utils import timezone
 from rest_framework_jwt.views import JSONWebTokenAPIView
-
+import facebook
 ## 해야할것 : 이벤트를 포함한 결제
 ## 안드로이드 -> 결제요청(구현필요) -> 결제페이지 -> order_beverage
 
@@ -183,20 +183,38 @@ class EventViewSet(viewsets.ModelViewSet): # GET : get_events
         serializer=EventSerializer(queryset,many=True)
         return Response(serializer.data)
 
-class SocialView(viewsets.ModelViewSet):
-    def create(self, request): # POST : user-manage
-        request.data['password']=request.data['username']
-
-        serializer=UserManageSerializer(data=request.data)
-        if serializer.is_valid():
-            user=serializer.save()
-            social = SocialUser(user=user, token=request.data['token'])
-            social.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer
+    def post(self,request,*args,**kwargs):
+        token=request.data['access_token']
+        graph = facebook.GraphAPI(token)
+        profile = graph.get_object("me")
+        facebook_uid=profile.get('id')
+
+        user = User.objects.filter(username=facebook_uid)
+        if user.count()==0:
+            request.data['username'] = facebook_uid
+            request.data['password'] = facebook_uid
+
+            serializer = UserManageSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.save()
+                social = SocialUser(user=user, token=request.data['access_token'])
+                social.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        socialUser=SocialUser.objects.filter(user=user).first()
+        if socialUser == None :
+            return Response('No Social Account', status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data['access_token'] == socialUser.token:
+            return Response('No Authrized Token', status=status.HTTP_400_BAD_REQUEST)
+
+        return super(ObtainJSONWebToken,self).post(request,*args,**kwargs)
+
+
 
 '''
 class FacebookLoginViewSet(viewsets.ModelViewSet):

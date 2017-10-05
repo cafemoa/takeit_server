@@ -114,14 +114,17 @@ jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 class JSONWebTokenSerializer(Serializer):
     def __init__(self, *args, **kwargs):
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
-        self.fields['token'] = serializers.CharField()
+        self.fields['access_token'] = serializers.CharField()
 
     @property
     def username_field(self):
         return get_username_field()
 
+
+
     def validate(self, attrs):
-        user=SocialUser.objects.get(token=attrs.get('token')).user
+        token=attrs.get('access_token')
+        user=SocialUser.objects.get(token=token).user
 
         if user:
             if not user.is_active:
