@@ -87,6 +87,7 @@ def cafe_directory_path(instance, filename):
     return 'cafe/{0}/profile/{1}'.format(instance.username, filename)
 class Cafe(BaseUser):
     cafe_image = models.ImageField(upload_to=cafe_directory_path, null=True)
+    tag=models.CharField(max_length=50, default="")
     locationX=models.FloatField()
     locationY = models.FloatField()
     locationString=models.CharField(max_length=50)

@@ -56,9 +56,9 @@ class CafeBeverageList(viewsets.ModelViewSet):
         serializer = BeverageSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def list(self, request): #  GET : reservation_page
+    def list(self, request): #  GET : get_cafes
         queryset=Cafe.objects.all()
-        serializers=CafeFullSerializer(queryset,many=True)
+        serializers=CafeSerializer(queryset,many=True)
         return Response(serializers.data)
 
 class UsersFavoriteCafe(viewsets.ModelViewSet):

@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update','post':'create'})),
 
     url(r'^get_cafe_beverage/(?P<cafe_pk>\d+)', CafeBeverageList.as_view({'get':'retrieve'})),
-    url(r'^reservation_page/',CafeBeverageList.as_view({'get':'list'})),
+    url(r'^get_cafes/',CafeBeverageList.as_view({'get':'list'})),
 
     url(r'^get_favorite_cafe/',UsersFavoriteCafe.as_view({'get':'list'})),
     url(r'^add_favorite_cafe/(?P<cafe_pk>\d+)',UsersFavoriteCafe.as_view({'post': 'update'})),

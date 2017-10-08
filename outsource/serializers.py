@@ -25,7 +25,7 @@ class BeverageSerializer(serializers.HyperlinkedModelSerializer):
 class CafeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Cafe
-        fields = ('cafe_image','locationString', 'name', 'pk','is_open')
+        fields = ('cafe_image','locationString', 'name', 'pk','is_open','tag')
 
 class CouponSerializer(serializers.HyperlinkedModelSerializer):
     cafe = CafeSerializer()
@@ -119,8 +119,6 @@ class JSONWebTokenSerializer(Serializer):
     @property
     def username_field(self):
         return get_username_field()
-
-
 
     def validate(self, attrs):
         token=attrs.get('access_token')
