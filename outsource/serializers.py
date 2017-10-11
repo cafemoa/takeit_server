@@ -105,6 +105,22 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         model = Event
         fields = ('pk','event_type','price', 'to_time', 'from_time','beverages')
 
+class AlertSerializer(serializers.HyperlinkedModelSerializer):
+    cafe_name=serializers.SerializerMethodField('GetCafeName')
+    def GetCafeName(self, instance):
+        return instance.cafe.locationString+" "+instance.cafe.name
+
+    def create(self,validated_data):
+        return Alert.objects.create(**validated_data)
+
+    class Meta:
+        model=Alert
+        fields=('cafe_name', 'content', 'is_event', 'alert_life')
+
+        extra_kwargs = {
+            'alert_life': {'write_only': True},
+        }
+
 baseUser = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER

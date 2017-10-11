@@ -177,12 +177,25 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class EventViewSet(viewsets.ModelViewSet): # GET : get_events
     queryset=Event.objects.all()
-    def list(self,request,cafe_pk):
-        cafe=Cafe.objects.get(pk=cafe_pk)
-        queryset=Event.objects.filter(cafe=cafe)
+    def list(self,request):
+        now_time=datetime.date.today()
+        queryset=Event.objects.filter(from_time__gte=now_time)
         serializer=EventSerializer(queryset,many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, cafe_pk):
+        cafe = Cafe.objects.get(pk=cafe_pk)
+        queryset = Event.objects.filter(cafe=cafe)
+        serializer = EventSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+class AlertViewSet(viewsets.ModelViewSet):
+    quertset=Alert.objects.all()
+    def list(self,request):
+        now_time = datetime.date.today()
+        queryset=Alert.objects.filter(alert_life__gte=now_time)
+        serializer=AlertSerializer(queryset,many=True)
+        return Response(serializer.data)
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer

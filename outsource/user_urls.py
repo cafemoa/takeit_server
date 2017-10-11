@@ -21,5 +21,8 @@ urlpatterns = [
     url(r'^recent_payment_list_by_order/(?P<coupon_pk>\d+)',OrderViewSet.as_view({'get':'retrieve'})),
     url(r'^recent_payment_list_by_id/',OrderViewSet.as_view({'get':'list'})),
 
-    url(r'^get_events/(?P<cafe_pk>\d+)',EventViewSet.as_view({'get':'list'})),
+    url(r'^get_cafe_event/(?P<cafe_pk>\d+)',EventViewSet.as_view({'get':'retrieve'})),
+    url(r'^get_events/',EventViewSet.as_view({'get':'list'})),
+
+    url(r'^get_alerts/', AlertViewSet.as_view({'get': 'list'})),
 ]

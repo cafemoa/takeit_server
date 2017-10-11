@@ -1,5 +1,5 @@
-from outsource.models import Cafe,Order,Coupon,Beverage,User,Event
-from outsource.serializers import OrderSerializer,EventSerializer
+from outsource.models import Cafe,Order,Coupon,Beverage,User,Event,Alert
+from outsource.serializers import OrderSerializer,EventSerializer,AlertSerializer
 from rest_framework.views import APIView
 import datetime
 from rest_framework.response import Response
@@ -78,3 +78,13 @@ class CafeOpenUpdate(APIView):
         cafe.is_open=request.data['is_open']
         cafe.save()
         return Response(status=200)
+
+class AlertViewSet(viewsets.ModelViewSet):
+    queryset = Alert.objects.all()
+    def create(self,request):
+        serializer=AlertSerializer(data=request.data)
+        if serializer.is_valid():
+            alert=serializer.save(cafe_id=request.user.pk)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

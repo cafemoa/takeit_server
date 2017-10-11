@@ -169,3 +169,11 @@ class SocialUser(models.Model):
     user=models.ForeignKey(User)
     token=models.TextField()
 
+class Alert(models.Model):
+    is_event=models.BooleanField(default=True)
+    cafe=models.ForeignKey(Cafe)
+    content=models.CharField(max_length=100)
+    alert_life=models.DateTimeField()
+
+    def __str__(self):
+        return self.cafe.name + " : "+self.content
