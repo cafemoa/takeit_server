@@ -52,9 +52,7 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
         instance.phone_number = validated_data.get('phone_number',instance.phone_number)
         instance.email = validated_data.get('email',instance.email)
-        instance.birth_year = validated_data.get('birth_year',instance.birth_year)
-        instance.birth_month = validated_data.get('birth_month',instance.birth_month)
-        instance.birth_day = validated_data.get('birth_day',instance.birth_day)
+        instance.birth_year = validated_data.get('birth',instance.birth_year)
         instance.gender = validated_data.get('gender',instance.gender)
 
         if not validated_data.get('password') == None :
@@ -64,7 +62,7 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
         return instance
     class Meta:
         model = User
-        fields = ('username','birth_year', 'birth_month', 'birth_day', 'password',
+        fields = ('username','birth', 'password',
                   'gender','name','phone_number','email','profile_picture')
         extra_kwargs = {
             'security_question': {'write_only': True},

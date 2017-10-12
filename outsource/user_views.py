@@ -197,6 +197,25 @@ class AlertViewSet(viewsets.ModelViewSet):
         serializer=AlertSerializer(queryset,many=True)
         return Response(serializer.data)
 
+class SocialSignUp(viewsets.ModelViewSet):
+    def create(self,request):
+        token = request.data['access_token']
+        graph = facebook.GraphAPI(token)
+        profile = graph.get_object("me")
+        facebook_uid = profile.get('id')
+
+        request.data['username'] = facebook_uid
+        request.data['password'] = facebook_uid
+
+        serializer = UserManageSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            social = SocialUser(user=user, token=request.data['access_token'])
+            social.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ObtainJSONWebToken(JSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer
     def post(self,request,*args,**kwargs):
@@ -207,25 +226,22 @@ class ObtainJSONWebToken(JSONWebTokenAPIView):
 
         user = User.objects.filter(username=facebook_uid)
         if user.count()==0:
-            request.data['username'] = facebook_uid
-            request.data['password'] = facebook_uid
-
-            serializer = UserManageSerializer(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
-                social = SocialUser(user=user, token=request.data['access_token'])
-                social.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            data = {}
+            data['token'] = ""
+            return Response(data, status=201)
 
         socialUser=SocialUser.objects.filter(user=user).first()
-        if socialUser == None :
-            return Response('No Social Account', status=status.HTTP_400_BAD_REQUEST)
 
         if not request.data['access_token'] == socialUser.token:
-            return Response('No Authrized Token', status=status.HTTP_400_BAD_REQUEST)
+            data={}
+            data['token']=""
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-        return super(ObtainJSONWebToken,self).post(request,*args,**kwargs)
+        socialUser.token=request.data['access_token']
+        socialUser.save()
+        token=super(ObtainJSONWebToken, self).post(request, *args, **kwargs)
+        print(token)
+        return token
 
 
 

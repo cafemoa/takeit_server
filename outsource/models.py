@@ -77,9 +77,7 @@ def user_directory_path(instance, filename):
     return 'user/{0}/{1}'.format(instance.username, filename)
 class User(BaseUser):
     profile_picture = models.ImageField(upload_to=user_directory_path, null=True)
-    birth_year = models.IntegerField(default=1998)
-    birth_month = models.IntegerField(default=8)
-    birth_day = models.IntegerField(default=18)
+    birth = models.IntegerField(default=980818)
     gender = models.BooleanField(default=True)
     favorite_cafe=models.ManyToManyField('Cafe', blank=True)
 
