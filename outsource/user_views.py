@@ -162,9 +162,12 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.data,status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request): # GET : recent_payment_list_by_id
+    def list(self, request,term_year,term_month): # GET : recent_payment_list_by_id
         user=User.objects.get(pk=request.user.pk)
-        queryset = Order.objects.filter(orderer=user, is_done=True).order_by('-order_time')
+        now_time = datetime.date.today()
+        now_time = datetime.date(now_time.year-int(term_year), now_time.month - int(term_month), now_time.day)
+
+        queryset = Order.objects.filter(orderer=user, order_time__gte=now_time).order_by('-order_time')
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -240,7 +243,7 @@ class ObtainJSONWebToken(JSONWebTokenAPIView):
         socialUser.token=request.data['access_token']
         socialUser.save()
         token=super(ObtainJSONWebToken, self).post(request, *args, **kwargs)
-        print(token)
+
         return token
 
 

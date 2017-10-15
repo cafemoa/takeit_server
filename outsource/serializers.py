@@ -79,6 +79,25 @@ class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('beverage_id', 'beverage_name','whipping_cream', 'is_ice', 'size','shot_num')
 
 class OrderSerializer(serializers.HyperlinkedModelSerializer):
+    cafe_name=serializers.SerializerMethodField('GetOrderCafeName')
+    cafe_location = serializers.SerializerMethodField('GetOrderCafeLocation')
+    menu_name=serializers.SerializerMethodField('GetOrderMenuName')
+    def GetOrderCafeName(self, instance):
+        return instance.cafe.name
+
+    def GetOrderCafeLocation(self, instance):
+        return instance.cafe.locationString
+
+    def GetOrderMenuName(self, instance):
+        if instance.options.count()>1 :
+            return  instance.options.first().beverage.name + " 및"+str(instance.options.count()-1)+" 잔"
+        else :
+            if instance.options.count()==0 :
+                return instance.cafe.name
+
+            return instance.options.first().beverage.name
+
+
     orderer_username = serializers.SerializerMethodField('GetOrdererUserName')
     options = BeverageOptionSerializer(many=True,read_only=True)
 
@@ -90,8 +109,8 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Order
-        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price', 'order_num')
-        read_only_fields = ('order_time','orderer_username', 'order_num')
+        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price', 'order_num', 'cafe_name','cafe_location','menu_name')
+        read_only_fields = ('order_time','orderer_username', 'order_num', 'cafe_name','cafe_location','menu_name')
 
 
 class EventSerializer(serializers.HyperlinkedModelSerializer):
