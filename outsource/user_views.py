@@ -134,6 +134,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.amount_price=amount_price
             order.save()
 
+            '''
             Device = get_device_model()
             cafeDevice = Device.objects.filter(user=cafe)
             if not cafeDevice.count()==0 :
@@ -146,6 +147,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                         cafeDevice.send_message({
                                                     'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
+            '''
+
             if cafe.can_use_coupon :
                 if order.payment_type==0 :
                     coupon = Coupon.objects.filter(cafe=order.cafe, user=user)

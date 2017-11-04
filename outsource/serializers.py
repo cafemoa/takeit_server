@@ -20,7 +20,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 class BeverageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=Beverage
-        fields = ('name', 'image', 'price', 'pk')
+        fields = ('name', 'image', 'price', 'pk','type')
 
 class CafeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

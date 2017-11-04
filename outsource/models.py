@@ -104,6 +104,15 @@ class Beverage(models.Model):
     price=models.CharField(max_length=50)
     coupon_payment=models.BooleanField(default=False)
 
+    BEVERAGE_TYPE_CHOICE = (
+        (0, '커피&에스프레소'),
+        (1, '에이드&스무디'),
+        (2, '차'),
+        (3, '디저트'),
+        (4, '기타')
+    )
+    type = models.IntegerField(default=0, choices=BEVERAGE_TYPE_CHOICE)
+
     def __str__(self):
         return self.cafe.locationString+" "+self.cafe.name+"의 "+self.name
 
@@ -158,6 +167,7 @@ class Event(models.Model):
 
 class BeverageOption(models.Model):
     beverage = models.ForeignKey(Beverage)
+
     whipping_cream=models.BooleanField(default=False)
     is_ice = models.BooleanField(default=False)
     size=models.IntegerField(default=0)
