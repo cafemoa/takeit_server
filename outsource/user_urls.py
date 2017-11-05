@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^get_events/',EventViewSet.as_view({'get':'list'})),
 
     url(r'^get_alerts/', AlertViewSet.as_view({'get': 'list'})),
+    url(r'^email_check/', EmailCheck.as_view()),
 ]

@@ -12,6 +12,7 @@ from rest_framework import status
 import datetime
 from django.utils import timezone
 from rest_framework_jwt.views import JSONWebTokenAPIView
+from rest_framework.views import APIView
 import facebook
 ## 해야할것 : 이벤트를 포함한 결제
 ## 안드로이드 -> 결제요청(구현필요) -> 결제페이지 -> order_beverage
@@ -221,6 +222,13 @@ class SocialSignUp(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EmailCheck(APIView):
+    def post(self, request):
+        user = User.objects.filter(username=request.data['email'])
+        if user.count()>=1:
+            return Response(status=400)
+
+        return Response(status=200)
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer

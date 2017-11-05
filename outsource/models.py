@@ -36,7 +36,6 @@ class BaseUser(AbstractBaseUser, TimeStampedModel):
     username = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100, default="")
     phone_number = models.CharField(max_length=15, default="")
-    email=models.CharField(max_length=50, default="")
     USER_TYPE_CHOICE = (
         (0, '유저'),
         (1, '카페'),
