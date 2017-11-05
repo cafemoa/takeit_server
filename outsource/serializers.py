@@ -51,7 +51,6 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
         instance.phone_number = validated_data.get('phone_number',instance.phone_number)
-        instance.email = validated_data.get('email',instance.email)
         instance.birth_year = validated_data.get('birth',instance.birth_year)
         instance.gender = validated_data.get('gender',instance.gender)
 
@@ -63,7 +62,7 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username','birth', 'password',
-                  'gender','name','phone_number','email','profile_picture')
+                  'gender','name','phone_number','profile_picture')
         extra_kwargs = {
             'security_question': {'write_only': True},
             'security_question_answer': {'write_only': True},
