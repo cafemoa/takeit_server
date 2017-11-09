@@ -101,6 +101,7 @@ class Beverage(models.Model):
     name=models.CharField(max_length=30)
     image = models.ImageField(upload_to=beverage_directory_path, null=True)
     price=models.CharField(max_length=50)
+    is_best=models.BooleanField(default=False)
     coupon_payment=models.BooleanField(default=False)
 
     BEVERAGE_TYPE_CHOICE = (
@@ -121,6 +122,7 @@ class Order(models.Model):
     cafe = models.ForeignKey(Cafe,related_name="orders")
     is_done=models.BooleanField(default=False)
     order_num=models.IntegerField(default=0)
+    get_time=models.IntegerField(default=0)
     options=models.ManyToManyField('BeverageOption')
     PAYMENT_TYPE_CHOICE = (
         (0, '일반결제'),

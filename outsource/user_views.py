@@ -115,22 +115,22 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
         if serializer.is_valid():
-            order=serializer.save(orderer_id=request.user.pk,cafe_id=cafe_pk,order_num=order_num)
+            order=serializer.save(orderer_id=request.user.pk,cafe_id=cafe_pk,order_num=order_num,get_time=request.data.get('get_time'))
             cafe.current_order_num += 1
             cafe.save()
 
             options = request.data.get('options')
             amount_price=0
             for option_info in options:
-                option=BeverageOption.objects.create(beverage_id=option_info['beverage'],is_ice=option_info['is_ice'],
-                                                     size=option_info['size'],whipping_cream=option_info['whipping_cream'], shot_num=option_info['shot_num'])
-
-                option.save()
-                order.options.add(option)
-                size_price=option.beverage.price.split()
-                price=size_price[option_info['size']]
-                price=int(price.split(':')[1])
-                amount_price += price
+                for i in range(0,int(option_info['amount'])):
+                    option=BeverageOption.objects.create(beverage_id=option_info['beverage'],is_ice=option_info['is_ice'],
+                                                        size=option_info['size'],whipping_cream=option_info['whipping_cream'], shot_num=option_info['shot_num'])
+                    option.save()
+                    order.options.add(option)
+                    size_price=option.beverage.price.split()
+                    price=size_price[option_info['size']]
+                    price=int(price.split(':')[1])
+                    amount_price += price
 
             order.amount_price=amount_price
             order.save()

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="87ab4e4e-4082-4b48-8f89-5e3b1c5c10df" name="server" url="http://takeitnow.kr">
+        <fileTransfer host="takeitnow.kr" port="22" rootFolder="/home/takeit/takeit_server" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

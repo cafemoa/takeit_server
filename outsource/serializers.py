@@ -20,7 +20,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 class BeverageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=Beverage
-        fields = ('name', 'image', 'price', 'pk','type')
+        fields = ('name', 'image', 'price', 'pk','type','is_best')
 
 class CafeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -108,7 +108,7 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Order
-        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price', 'order_num', 'cafe_name','cafe_location','menu_name')
+        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'options', 'amount_price', 'order_num', 'cafe_name','cafe_location','menu_name','get_time')
         read_only_fields = ('order_time','orderer_username', 'order_num', 'cafe_name','cafe_location','menu_name')
 
 
