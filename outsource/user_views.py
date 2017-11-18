@@ -47,6 +47,11 @@ class UserManageViewSet(viewsets.ModelViewSet):
             serializer.save()
         return Response(status=status.HTTP_201_CREATED)
 
+    def destroy(self,request):
+        request.user.delete()
+        return Response(status=200)
+
+
 class CafeBeverageList(viewsets.ModelViewSet):
     queryset=Beverage.objects.all()
     serializer_class = BeverageSerializer
