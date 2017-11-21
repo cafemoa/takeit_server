@@ -7,7 +7,7 @@ urlpatterns = [
     url(r'^social-api-auth/', ObtainJSONWebToken.as_view()),
     url(r'^social-api-signup/', SocialSignUp.as_view({'post':'create'})),
     url(r'^rest-api/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update','post':'create'})),
+    url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update','post':'create','delete' : 'destroy'})),
 
     url(r'^get_cafe_beverage/(?P<cafe_pk>\d+)', CafeBeverageList.as_view({'get':'retrieve'})),
     url(r'^get_cafes/',CafeBeverageList.as_view({'get':'list'})),
@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^order_beverage/(?P<cafe_pk>\d+)',OrderViewSet.as_view({'post':'create'})),
     url(r'^recent_payment_list_by_order/(?P<coupon_pk>\d+)',OrderViewSet.as_view({'get':'retrieve'})),
     url(r'^recent_payment_list_by_id/(?P<term_year>\d+)/(?P<term_month>\d+)',OrderViewSet.as_view({'get':'list'})),
+    url(r'^ready_payment/', ReadyPayment.as_view()),
 
     url(r'^get_cafe_event/(?P<cafe_pk>\d+)',EventViewSet.as_view({'get':'retrieve'})),
     url(r'^get_events/',EventViewSet.as_view({'get':'list'})),

@@ -97,6 +97,30 @@ class CouponViewSet(viewsets.ModelViewSet):
         serializer=CouponSerializer(queryset)
         return Response(serializer.data)
 
+class ReadyPayment(APIView):
+    def post(self,request):
+        first_name=""
+        count_beverage=0
+        options = request.data.get('options')
+        amount_price = 0
+        for option_info in options:
+            for i in range(0, int(option_info['amount'])):
+                beverage=Beverage.objects.get(pk=option_info['beverage'])
+                size_price = beverage.price.split()
+                price = size_price[option_info['size']]
+                price = int(price.split(':')[1])
+                amount_price += price
+                count_beverage+=1
+
+                if first_name=="":
+                    first_name=beverage.name
+
+        if count_beverage>0 :
+            return Response({"menu_name" : first_name+" 및 "+ str(count_beverage)+"잔", "amount_price" : amount_price},status=200)
+        else :
+            return Response({"menu_name": first_name , "amount_price": amount_price},status=200)
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     def create(self,request,cafe_pk): #  POST : order_beverage
