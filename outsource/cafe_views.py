@@ -79,6 +79,13 @@ class CafeOpenUpdate(APIView):
         cafe.save()
         return Response(status=200)
 
+class CafeMinTimeSet(APIView):
+    def post(self, request):
+        cafe = Cafe.objects.get(pk=request.user.pk)
+        cafe.min_time=request.data['min_time']
+        cafe.save()
+        return Response(status=200)
+
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.all()
     def create(self,request):

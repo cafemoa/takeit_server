@@ -25,7 +25,7 @@ class BeverageSerializer(serializers.HyperlinkedModelSerializer):
 class CafeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Cafe
-        fields = ('cafe_image','locationString', 'name', 'pk','is_open','tag')
+        fields = ('cafe_image','locationString', 'name', 'pk','is_open','tag', 'min_time')
 
 class CouponSerializer(serializers.HyperlinkedModelSerializer):
     cafe = CafeSerializer()
@@ -37,7 +37,7 @@ class CafeFullSerializer(serializers.HyperlinkedModelSerializer):
     beverages = BeverageSerializer(many=True)
     class Meta:
         model = Cafe
-        fields = ('cafe_image','locationString', 'name', 'pk','beverages','is_open')
+        fields = ('cafe_image','locationString', 'name', 'pk','beverages','is_open', 'min_time')
 
 class UserManageSerializer(serializers.HyperlinkedModelSerializer):
     def create(self,validated_data):
