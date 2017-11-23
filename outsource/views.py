@@ -34,6 +34,8 @@ class DeviceViewSet(viewsets.ModelViewSet):
             serializer = DeviceSerializer(data=request.data)
         else :
             device=device.first()
+            device.is_active=True
+            device.save()
             serializer = DeviceSerializer(device, data=request.data)
 
         if serializer.is_valid():

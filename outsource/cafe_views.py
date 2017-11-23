@@ -18,6 +18,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def update(self,request,pk): # POST :  complete_order
         order = Order.objects.get(pk=pk)
+
         Device = get_device_model()
         cafeDevice = Device.objects.filter(user=order.orderer)
         if not cafeDevice.count() == 0:
