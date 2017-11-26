@@ -56,6 +56,7 @@ REST_USE_JWT = True
 
 FCM_APIKEY = "AAAATrYj7-Q:APA91bHsbOQcWIAb5F5JK1HdG0KMSh7TinfAY2SDlPVnLqMWw_ThLMiTWrqLe7nOcDv3lq6plZjidtGpMKBS5zJ8TvWcl0BUL2-UBqFImJ9b1pmLwOldpEC-_UrR0kr_Lr7bX_hE2CPN"
 FCM_DEVICE_MODEL = 'outsource.MyDevice'
+FCM_MAX_RECIPIENTS=5
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

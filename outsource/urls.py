@@ -7,7 +7,9 @@ from outsource.views import DeviceViewSet
 router = routers.DefaultRouter()
 router.register(r'devices', DeviceViewSet)
 
+print(router)
 urlpatterns = [
+    url(r'^fcm/set_active', DeviceViewSet.as_view({'put':'update'})),
     url(r'^fcm/', include(router.urls)),
     url('^', include('outsource.cafe_urls'), name='cafe'),
     url('^', include('outsource.user_urls'), name='user'),

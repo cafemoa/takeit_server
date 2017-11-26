@@ -169,12 +169,12 @@ class OrderViewSet(viewsets.ModelViewSet):
             if not cafeDevice.count()==0 :
                 cafeDevice=cafeDevice.first()
                 if order.options.count() > 1:
-                    cafeDevice.send_message({'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' +
+                    cafeDevice.send_message({'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' +
                                                         order.options.first().beverage.name + " 및 " + str(order.options.count() - 1) + "잔" + '이 주문되었습니다!'},
                                                 collapse_key="음료가 주문되었습니다!")
                 elif order.options.count() == 1:
                         cafeDevice.send_message({
-                                                    'message': '[' + order.order_time.strftime('%Y-%d-%m') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
+                                                    'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
 
 
@@ -239,13 +239,15 @@ class SocialSignUp(viewsets.ModelViewSet):
         profile = graph.get_object("me")
         facebook_uid = profile.get('id')
 
-        request.data['username'] = facebook_uid
-        request.data['password'] = facebook_uid
+        data=request.data.copy()
 
-        serializer = UserManageSerializer(data=request.data)
+        data['username'] = facebook_uid
+        data['password'] = facebook_uid
+
+        serializer = UserManageSerializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
-            social = SocialUser(user=user, token=request.data['access_token'])
+            social = SocialUser(user=user, token=data['access_token'])
             social.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

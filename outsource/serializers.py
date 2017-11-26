@@ -51,7 +51,7 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
         instance.phone_number = validated_data.get('phone_number',instance.phone_number)
-        instance.birth_year = validated_data.get('birth',instance.birth_year)
+        instance.birth_year = validated_data.get('birth',instance.birth)
         instance.gender = validated_data.get('gender',instance.gender)
 
         if not validated_data.get('password') == None :

@@ -34,12 +34,30 @@ class DeviceViewSet(viewsets.ModelViewSet):
             serializer = DeviceSerializer(data=request.data)
         else :
             device=device.first()
-            device.is_active=True
-            device.save()
+
             serializer = DeviceSerializer(device, data=request.data)
 
+
         if serializer.is_valid():
-            serializer.save(name=request.user.username, user_id=request.user.pk)
+            serializer.save(name=request.user.username, user_id=request.user.pk,is_active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        print(serializer.errors)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST);
+
+    def update(self,request):
+        device = MyDevice.objects.filter(name=request.user.username)
+        if device.count()==0:
+            return Response(status=401)
+
+        device=device.first()
+        if request.data['is_active'] == 'true':
+            device.is_active = True
+        else :
+            device.is_active = False
+
+        device.save()
+
+        return Response(status=200)
+
