@@ -81,8 +81,17 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
     cafe_name=serializers.SerializerMethodField('GetOrderCafeName')
     cafe_location = serializers.SerializerMethodField('GetOrderCafeLocation')
     menu_name=serializers.SerializerMethodField('GetOrderMenuName')
+    get_time = serializers.SerializerMethodField('GetTime')
     def GetOrderCafeName(self, instance):
         return instance.cafe.name
+
+    def GetTime(self, instance):
+        deltaTime=(int)(datetime.now().strftime('%s'))-(int)(instance.order_time.strftime('%s'))
+        get_time=instance.get_time*60-deltaTime
+        if get_time<0:
+            return 0
+
+        return int(get_time/60)
 
     def GetOrderCafeLocation(self, instance):
         return instance.cafe.locationString
