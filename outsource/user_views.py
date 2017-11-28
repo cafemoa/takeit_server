@@ -42,10 +42,13 @@ class UserManageViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         user=User.objects.get(pk=request.user.pk)
 
+        if not user.check_password(request.data['now_password']):
+            return Response(status=201)
+
         serializer=UserManageSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(status=200)
 
     def destroy(self,request):
         request.user.delete()
@@ -239,15 +242,13 @@ class SocialSignUp(viewsets.ModelViewSet):
         profile = graph.get_object("me")
         facebook_uid = profile.get('id')
 
-        data=request.data.copy()
+        request.data['username'] = facebook_uid
+        request.data['password'] = facebook_uid
 
-        data['username'] = facebook_uid
-        data['password'] = facebook_uid
-
-        serializer = UserManageSerializer(data=data)
+        serializer = UserManageSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            social = SocialUser(user=user, token=data['access_token'])
+            social = SocialUser(user=user, token=request.data['access_token'])
             social.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
