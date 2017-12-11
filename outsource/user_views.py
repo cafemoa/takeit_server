@@ -42,13 +42,10 @@ class UserManageViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         user=User.objects.get(pk=request.user.pk)
 
-        if not user.check_password(request.data['now_password']):
-            return Response(status=201)
-
         serializer=UserManageSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-        return Response(status=200)
+        return Response(status=status.HTTP_201_CREATED)
 
     def destroy(self,request):
         request.user.delete()
@@ -101,14 +98,18 @@ class CouponViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class ReadyPayment(APIView):
-    def post(self,request):
+    def post(self,request,cafe_pk):
         first_name=""
         count_beverage=0
         options = request.data.get('options')
+        cafe=Cafe.objects.get(pk=cafe_pk)
+        last_order = Order.objects.filter(cafe=cafe)
+        order_num=get_orderNum(last_order)
         amount_price = 0
         for option_info in options:
             for i in range(0, int(option_info['amount'])):
                 beverage=Beverage.objects.get(pk=option_info['beverage'])
+                cafe_pk=beverage.cafe.pk
                 size_price = beverage.price.split()
                 price = size_price[option_info['size']]
                 price = int(price.split(':')[1])
@@ -118,10 +119,16 @@ class ReadyPayment(APIView):
                 if first_name=="":
                     first_name=beverage.name
 
+        order_num=str(cafe_pk)+"_"+datetime.datetime.now().strftime("%Y%m%d")+"_"+str(order_num)
+        now_time = datetime.date.today()
+        close_time = datetime.date(now_time.year, now_time.month, now_time.day+1).strftime("%Y-%m-%d")
+        response={"order_num": order_num, "amount_price" : amount_price, "user_name":request.user.username, "cafe_name":cafe.name,
+                  "user_phonenumber" : request.user.phone_number, "cafe_phonenumber": cafe.phone_number, "pay_closetime":close_time}
         if count_beverage>1 :
-            return Response({"menu_name" : first_name+" 및 "+ str(count_beverage)+"잔", "amount_price" : amount_price},status=200)
+            response['menu_name']=first_name+" 및 "+ str(count_beverage-1)+"잔"
         else :
-            return Response({"menu_name": first_name , "amount_price": amount_price},status=200)
+            response['menu_name'] = first_name
+        return Response(response, status=200)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -212,6 +219,19 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
+def get_orderNum(last_order):
+    if last_order.count() == 0:
+        order_num = 0
+    else:
+        last_order = last_order.order_by('-order_time').first()
+        last_order_date = last_order.order_time.date()
+        now_order_date = timezone.now().today().date()
+        if last_order_date == now_order_date:
+            order_num = last_order.order_num + 1
+        else:
+            order_num = 0
+
+    return order_num
 
 class EventViewSet(viewsets.ModelViewSet): # GET : get_events
     queryset=Event.objects.all()
@@ -242,13 +262,15 @@ class SocialSignUp(viewsets.ModelViewSet):
         profile = graph.get_object("me")
         facebook_uid = profile.get('id')
 
-        request.data['username'] = facebook_uid
-        request.data['password'] = facebook_uid
+        data=request.data.copy()
 
-        serializer = UserManageSerializer(data=request.data)
+        data['username'] = facebook_uid
+        data['password'] = facebook_uid
+
+        serializer = UserManageSerializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
-            social = SocialUser(user=user, token=request.data['access_token'])
+            social = SocialUser(user=user, token=data['access_token'])
             social.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
