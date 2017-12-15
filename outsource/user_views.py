@@ -105,6 +105,8 @@ class ReadyPayment(APIView):
         cafe=Cafe.objects.get(pk=cafe_pk)
         last_order = Order.objects.filter(cafe=cafe)
         order_num=get_orderNum(last_order)
+        cafe.the_pay_order_num += 1
+        cafe.save()
         amount_price = 0
         for option_info in options:
             for i in range(0, int(option_info['amount'])):
@@ -119,7 +121,7 @@ class ReadyPayment(APIView):
                 if first_name=="":
                     first_name=beverage.name
 
-        order_num=str(cafe_pk)+"_"+datetime.datetime.now().strftime("%Y%m%d")+"_"+str(order_num)
+        order_num=str(cafe_pk)+"_"+datetime.datetime.now().strftime("%Y%m%d")+"_"+str(order_num)+"_"+str(cafe.the_pay_order_num)
         now_time = datetime.date.today()
         close_time = datetime.date(now_time.year, now_time.month, now_time.day+1).strftime("%Y-%m-%d")
         response={"order_num": order_num, "amount_price" : amount_price, "user_name":request.user.username, "cafe_name":cafe.name,
@@ -140,22 +142,12 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         last_order = Order.objects.filter(cafe=cafe)
 
-        if last_order.count()==0 :
-            order_num = 0
-
-        else:
-            last_order = last_order.order_by('-order_time').first()
-            last_order_date = last_order.order_time.date()
-            now_order_date = timezone.now().today().date()
-            if last_order_date == now_order_date:
-                order_num = last_order.order_num + 1
-            else:
-                order_num = 0
+        order_num = get_orderNum(last_order)
 
 
         if serializer.is_valid():
             order=serializer.save(orderer_id=request.user.pk,cafe_id=cafe_pk,order_num=order_num,get_time=request.data.get('get_time'))
-            cafe.current_order_num += 1
+            cafe.the_pay_order_num = 0
             cafe.save()
 
             options = request.data.get('options')
@@ -201,6 +193,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     coupon.save()
 
             serializer = OrderSerializer(order)
+
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.data,status=status.HTTP_400_BAD_REQUEST)
 

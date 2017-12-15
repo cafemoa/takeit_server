@@ -88,10 +88,10 @@ class Cafe(BaseUser):
     locationX=models.FloatField()
     locationY = models.FloatField()
     locationString=models.CharField(max_length=50)
-    current_order_num=models.IntegerField(default=0)
     is_open=models.BooleanField(default=False)
     can_use_coupon=models.BooleanField(default=True)
     min_time=models.IntegerField(default=0)
+    the_pay_order_num=models.IntegerField(default=0)
 
 def beverage_directory_path(instance, filename):
     ext = filename.split('.')[-1]
