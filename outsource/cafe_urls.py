@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^broadcast_advertise/(?P<beverage_pk>\d+)', BroadCastAdvertise.as_view()),
     url(r'^set_open/', CafeOpenUpdate.as_view()),
     url(r'^set_min_time/', CafeMinTimeSet.as_view()),
+    url(r'^cafe_info/', CafeViewSet.as_view({'get':'list'})),
     url(r'^create_alert/', AlertViewSet.as_view({'post':'create'})),
 ]

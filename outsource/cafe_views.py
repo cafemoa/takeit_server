@@ -1,5 +1,5 @@
 from outsource.models import Cafe,Order,Coupon,Beverage,User,Event,Alert
-from outsource.serializers import OrderSerializer,EventSerializer,AlertSerializer
+from outsource.serializers import OrderSerializer,EventSerializer,AlertSerializer,CafeSerializer
 from rest_framework.views import APIView
 import datetime
 from rest_framework.response import Response
@@ -96,3 +96,11 @@ class AlertViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CafeViewSet(viewsets.ModelViewSet):
+    queryset = Cafe.objects.all()
+    def list(self, request): # GET : user-manage
+        user = Cafe.objects.get(pk=request.user.pk)
+        serializers=CafeSerializer(user)
+        return Response(serializers.data)
