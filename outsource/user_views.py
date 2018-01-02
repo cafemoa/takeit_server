@@ -151,11 +151,20 @@ class OrderViewSet(viewsets.ModelViewSet):
             cafe.save()
 
             options = request.data.get('options')
+
             amount_price=0
             for option_info in options:
                 for i in range(0,int(option_info['amount'])):
-                    option=BeverageOption.objects.create(beverage_id=option_info['beverage'],is_ice=option_info['is_ice'],
-                                                        size=option_info['size'],whipping_cream=option_info['whipping_cream'], shot_num=option_info['shot_num'])
+                    option=BeverageOrderOption.objects.create(beverage_id=option_info['beverage'],
+                                                         size=option_info['size'],
+                                                         shot_num=option_info['shot_num'])
+
+                    for option_selection in option_info['option']:
+                        beverageOption = int(option_selection.split('-')[0])
+                        selection = int(option_selection.split('-')[1])
+                        orderOptionSelector = OrderOptionSelector.objects.create(option_id=beverageOption, selection_id=selection)
+                        orderOptionSelector.save()
+
                     option.save()
                     order.options.add(option)
                     size_price=option.beverage.price.split()

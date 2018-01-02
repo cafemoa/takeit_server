@@ -124,7 +124,7 @@ class Order(models.Model):
     is_done=models.BooleanField(default=False)
     order_num=models.IntegerField(default=0)
     get_time=models.IntegerField(default=0)
-    options=models.ManyToManyField('BeverageOption')
+    options=models.ManyToManyField('BeverageOrderOption')
     PAYMENT_TYPE_CHOICE = (
         (0, '일반결제'),
         (1, '쿠폰결제'),
@@ -167,13 +167,29 @@ class Event(models.Model):
     def __str__(self):
         return self.cafe.name + "의 이벤트"
 
-class BeverageOption(models.Model):
+class BeverageOrderOption(models.Model):
     beverage = models.ForeignKey(Beverage)
-
-    whipping_cream=models.BooleanField(default=False)
-    is_ice = models.BooleanField(default=False)
     size=models.IntegerField(default=0)
-    shot_num=models.IntegerField(default=0)
+    shot_num = models.IntegerField(default=0)
+
+class BeverageOption(models.Model):
+    beverage = models.ForeignKey(Beverage, related_name='options')
+    content=models.CharField(max_length=100)
+    price=models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.beverage.name+"의 "+self.content
+
+class OptionSelection(models.Model):
+    beverageOption = models.ForeignKey(BeverageOption, related_name='selections')
+    content = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.beverageOption.beverage.name+"의 "+self.beverageOption.content+"의 "+self.content
+
+class OrderOptionSelector(models.Model):
+    option = models.ForeignKey('BeverageOrderOption', related_name='options')
+    selection = models.ForeignKey('OptionSelection')
 
 class SocialUser(models.Model):
     user=models.ForeignKey(User)

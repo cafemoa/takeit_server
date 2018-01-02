@@ -17,10 +17,6 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = MyDevice
         fields = ('dev_id','reg_id','name','is_active')
 
-class BeverageSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model=Beverage
-        fields = ('name', 'image', 'price', 'pk','type','is_best')
 
 class CafeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -32,6 +28,41 @@ class CouponSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=Coupon
         fields = ('pk', 'coupon_progress', 'cafe')
+
+
+
+class OptionSelectionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model=OptionSelection
+        fields = ('content','pk')
+
+class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
+    selections=OptionSelectionSerializer(many=True)
+    class Meta:
+        model=BeverageOption
+        fields = ('content', 'price', 'pk', 'selections')
+
+class OrderOptionSelectorSerializer(serializers.HyperlinkedModelSerializer):
+    selection = OptionSelectionSerializer()
+    class Meta:
+        model=OrderOptionSelector
+        fields = ('selection')
+
+class BeverageOrderOptionSerializer(serializers.HyperlinkedModelSerializer):
+    options=OrderOptionSelectorSerializer(many=True)
+    beverage_name = serializers.SerializerMethodField('GetBeverageName')
+    def GetBeverageName(self, instance):
+        return instance.beverage.name
+    class Meta:
+        model = BeverageOrderOption
+        fields = ('beverage_id', 'beverage_name', 'size','shot_num','options')
+
+class BeverageSerializer(serializers.HyperlinkedModelSerializer):
+    options=BeverageOptionSerializer(many=True)
+
+    class Meta:
+        model=Beverage
+        fields = ('name', 'image', 'price', 'pk','type','is_best','options')
 
 class CafeFullSerializer(serializers.HyperlinkedModelSerializer):
     beverages = BeverageSerializer(many=True)
@@ -69,14 +100,6 @@ class UserManageSerializer(serializers.HyperlinkedModelSerializer):
             'password': {'write_only': True}
         }
 
-class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
-    beverage_name = serializers.SerializerMethodField('GetBeverageName')
-    def GetBeverageName(self, instance):
-        return instance.beverage.name
-    class Meta:
-        model = BeverageOption
-        fields = ('beverage_id', 'beverage_name','whipping_cream', 'is_ice', 'size','shot_num')
-
 class OrderSerializer(serializers.HyperlinkedModelSerializer):
     cafe_name=serializers.SerializerMethodField('GetOrderCafeName')
     cafe_location = serializers.SerializerMethodField('GetOrderCafeLocation')
@@ -107,7 +130,7 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
 
 
     orderer_username = serializers.SerializerMethodField('GetOrdererUserName')
-    options = BeverageOptionSerializer(many=True,read_only=True)
+    options = BeverageOrderOptionSerializer(many=True,read_only=True)
 
     def GetOrdererUserName(self, instance):
         return instance.orderer.name
