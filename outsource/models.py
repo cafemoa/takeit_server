@@ -171,11 +171,11 @@ class BeverageOrderOption(models.Model):
     beverage = models.ForeignKey(Beverage)
     size=models.IntegerField(default=0)
     shot_num = models.IntegerField(default=0)
+    options = models.ManyToManyField('OptionSelection')
 
 class BeverageOption(models.Model):
     beverage = models.ForeignKey(Beverage, related_name='options')
     content=models.CharField(max_length=100)
-    price=models.IntegerField(default=0)
 
     def __str__(self):
         return self.beverage.name+"의 "+self.content
@@ -183,13 +183,11 @@ class BeverageOption(models.Model):
 class OptionSelection(models.Model):
     beverageOption = models.ForeignKey(BeverageOption, related_name='selections')
     content = models.CharField(max_length=100)
+    add_price = models.IntegerField(default=0)
 
     def __str__(self):
         return self.beverageOption.beverage.name+"의 "+self.beverageOption.content+"의 "+self.content
 
-class OrderOptionSelector(models.Model):
-    option = models.ForeignKey('BeverageOrderOption', related_name='options')
-    selection = models.ForeignKey('OptionSelection')
 
 class SocialUser(models.Model):
     user=models.ForeignKey(User)

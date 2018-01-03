@@ -136,6 +136,8 @@ class ReadyPayment(APIView):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     def create(self,request,cafe_pk): #  POST : order_beverage
+        import time
+        start_time = time.time()
         user = User.objects.get(pk=request.user.pk)
         cafe=Cafe.objects.get(pk=cafe_pk)
         serializer=OrderSerializer(data=request.data)
@@ -160,12 +162,12 @@ class OrderViewSet(viewsets.ModelViewSet):
                                                          shot_num=option_info['shot_num'])
 
                     for option_selection in option_info['option']:
-                        beverageOption = int(option_selection.split('-')[0])
-                        selection = int(option_selection.split('-')[1])
-                        orderOptionSelector = OrderOptionSelector.objects.create(option_id=beverageOption, selection_id=selection)
-                        orderOptionSelector.save()
+                        optionSelction=OptionSelection.objects.get(id=option_selection)
+                        amount_price+=optionSelction.add_price
+                        option.options.add(option_selection)
 
                     option.save()
+
                     order.options.add(option)
                     size_price=option.beverage.price.split()
                     price=size_price[option_info['size']]
@@ -188,7 +190,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                                                     'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
 
-
             if cafe.can_use_coupon :
                 if order.payment_type==0 :
                     coupon = Coupon.objects.filter(cafe=order.cafe, user=user)
@@ -202,7 +203,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                     coupon.save()
 
             serializer = OrderSerializer(order)
-
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.data,status=status.HTTP_400_BAD_REQUEST)
 

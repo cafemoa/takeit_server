@@ -7,7 +7,6 @@ from outsource.views import DeviceViewSet
 router = routers.DefaultRouter()
 router.register(r'devices', DeviceViewSet)
 
-print(router)
 urlpatterns = [
     url(r'^fcm/set_active', DeviceViewSet.as_view({'put':'update'})),
     url(r'^fcm/', include(router.urls)),

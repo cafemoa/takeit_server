@@ -13,3 +13,4 @@ admin.site.register(SocialUser)
 admin.site.register(Alert)
 admin.site.register(BeverageOrderOption)
 admin.site.register(OptionSelection)
+

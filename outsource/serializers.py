@@ -34,22 +34,17 @@ class CouponSerializer(serializers.HyperlinkedModelSerializer):
 class OptionSelectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=OptionSelection
-        fields = ('content','pk')
+        fields = ('content','pk','add_price')
 
 class BeverageOptionSerializer(serializers.HyperlinkedModelSerializer):
     selections=OptionSelectionSerializer(many=True)
     class Meta:
         model=BeverageOption
-        fields = ('content', 'price', 'pk', 'selections')
+        fields = ('content', 'pk', 'selections')
 
-class OrderOptionSelectorSerializer(serializers.HyperlinkedModelSerializer):
-    selection = OptionSelectionSerializer()
-    class Meta:
-        model=OrderOptionSelector
-        fields = ('selection')
 
 class BeverageOrderOptionSerializer(serializers.HyperlinkedModelSerializer):
-    options=OrderOptionSelectorSerializer(many=True)
+    options=OptionSelectionSerializer(many=True)
     beverage_name = serializers.SerializerMethodField('GetBeverageName')
     def GetBeverageName(self, instance):
         return instance.beverage.name
