@@ -122,6 +122,8 @@ class Order(models.Model):
     orderer=models.ForeignKey(User,related_name='orders')
     cafe = models.ForeignKey(Cafe,related_name="orders")
     is_done=models.BooleanField(default=False)
+    is_making = models.BooleanField(default=False)
+    is_end = models.BooleanField(default=False)
     order_num=models.IntegerField(default=0)
     get_time=models.IntegerField(default=0)
     options=models.ManyToManyField('BeverageOrderOption')

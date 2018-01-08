@@ -7,10 +7,12 @@ urlpatterns = [
     url(r'^social-api-auth/', ObtainJSONWebToken.as_view()),
     url(r'^social-api-signup/', SocialSignUp.as_view({'post':'create'})),
     url(r'^rest-api/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update','post':'create','delete' : 'destroy'})),
+    url(r'^user-manage/',UserManageViewSet.as_view({'get': 'list','put':'update',
+                                                    'post':'create','delete' : 'destroy'})),
 
     url(r'^get_cafe_beverage/(?P<cafe_pk>\d+)', CafeBeverageList.as_view({'get':'retrieve'})),
     url(r'^get_cafes/',CafeBeverageList.as_view({'get':'list'})),
+    url(r'^get_beverage_option/(?P<pk>\d+)',BeverageOption.as_view()),
 
     url(r'^get_favorite_cafe/',UsersFavoriteCafe.as_view({'get':'list'})),
     url(r'^add_favorite_cafe/(?P<cafe_pk>\d+)',UsersFavoriteCafe.as_view({'post': 'update'})),

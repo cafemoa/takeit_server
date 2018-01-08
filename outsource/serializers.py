@@ -53,11 +53,9 @@ class BeverageOrderOptionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('beverage_id', 'beverage_name', 'size','shot_num','options')
 
 class BeverageSerializer(serializers.HyperlinkedModelSerializer):
-    options=BeverageOptionSerializer(many=True)
-
     class Meta:
         model=Beverage
-        fields = ('name', 'image', 'price', 'pk','type','is_best','options')
+        fields = ('name', 'image', 'price', 'pk','type','is_best')
 
 class CafeFullSerializer(serializers.HyperlinkedModelSerializer):
     beverages = BeverageSerializer(many=True)

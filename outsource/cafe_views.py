@@ -80,6 +80,36 @@ class CafeOpenUpdate(APIView):
         cafe.save()
         return Response(status=200)
 
+class OrderSetMaking(APIView):
+    def post(self,request,pk):
+        order = Order.objects.get(pk=pk)
+
+        Device = get_device_model()
+        cafeDevice = Device.objects.filter(user=order.orderer)
+        if not cafeDevice.count() == 0:
+            cafeDevice = cafeDevice.first()
+            if order.options.count() > 1:
+                cafeDevice.send_message(
+                    {'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및 " + str(
+                        order.options.count() - 1) + "잔" + '이 제조중입니다!'}, collapse_key="주문하신 음료가 제조중입니다!")
+            elif order.options.count() == 1:
+                cafeDevice.send_message({
+                                            'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '(이)가 제조중입니다!'}
+                                        , collapse_key="주문하신 음료가 제조중입니다!")
+
+        order.is_making = True
+        order.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+
+class OrderSetEnd(APIView):
+    def post(self, request, pk):
+        order=Order.objects.get(pk=pk)
+        order.is_end=True
+        order.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+
 class CafeMinTimeSet(APIView):
     def post(self, request):
         cafe = Cafe.objects.get(pk=request.user.pk)

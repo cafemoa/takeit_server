@@ -67,6 +67,14 @@ class CafeBeverageList(viewsets.ModelViewSet):
         serializers=CafeSerializer(queryset,many=True)
         return Response(serializers.data)
 
+
+class BeverageOption(APIView):
+    def get(self, request,pk):
+        beverage=Beverage.objects.get(pk=pk)
+        serializers=BeverageOptionSerializer(beverage.options.all(),many=True)
+        return Response(serializers.data)
+
+
 class UsersFavoriteCafe(viewsets.ModelViewSet):
     queryset = Cafe.objects.all()
     serializer_class = CafeSerializer
