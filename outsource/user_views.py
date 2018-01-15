@@ -169,7 +169,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                                                          size=option_info['size'],
                                                          shot_num=option_info['shot_num'])
 
-                    for option_selection in option_info['option']:
+                    for option_selection in option_info['selections']:
                         optionSelction=OptionSelection.objects.get(id=option_selection)
                         amount_price+=optionSelction.add_price
                         option.options.add(option_selection)
@@ -217,7 +217,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     def list(self, request,term_year,term_month): # GET : recent_payment_list_by_id
         user=User.objects.get(pk=request.user.pk)
         now_time = datetime.date.today()
-        now_time = datetime.date(now_time.year-int(term_year), now_time.month - int(term_month), now_time.day)
+        year=(now_time.year-int(term_year))*12+(now_time.month-int(term_month)-1)
+        now_time = datetime.date(year//12, year%12+1, now_time.day)
+
 
         queryset = Order.objects.filter(orderer=user, order_time__gte=now_time).order_by('-order_time')
         serializer = OrderSerializer(queryset, many=True)

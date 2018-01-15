@@ -34,11 +34,12 @@ class DeviceViewSet(viewsets.ModelViewSet):
             serializer = DeviceSerializer(data=request.data)
         else :
             device=device.first()
-
             serializer = DeviceSerializer(device, data=request.data)
+            print(serializer)
 
 
         if serializer.is_valid():
+            
             serializer.save(name=request.user.username, user_id=request.user.pk,is_active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
