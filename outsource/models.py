@@ -104,6 +104,8 @@ class Beverage(models.Model):
     price=models.CharField(max_length=50)
     is_best=models.BooleanField(default=False)
     coupon_payment=models.BooleanField(default=False)
+    have_shot=models.BooleanField(default=False)
+    add_shot_price=models.IntegerField(default=0)
 
     BEVERAGE_TYPE_CHOICE = (
         (0, '커피&에스프레소'),
@@ -126,6 +128,7 @@ class Order(models.Model):
     is_end = models.BooleanField(default=False)
     order_num=models.IntegerField(default=0)
     get_time=models.IntegerField(default=0)
+
     options=models.ManyToManyField('BeverageOrderOption')
     PAYMENT_TYPE_CHOICE = (
         (0, '일반결제'),
@@ -176,8 +179,9 @@ class BeverageOrderOption(models.Model):
     options = models.ManyToManyField('OptionSelection')
 
 class BeverageOption(models.Model):
-    beverage = models.ForeignKey(Beverage, related_name='options')
+    beverage=models.ForeignKey(Beverage, related_name='options')
     content=models.CharField(max_length=100)
+    one_selector=models.BooleanField(default=False)
 
     def __str__(self):
         return self.beverage.name+"의 "+self.content

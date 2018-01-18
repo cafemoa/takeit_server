@@ -39,7 +39,7 @@ class DeviceViewSet(viewsets.ModelViewSet):
 
 
         if serializer.is_valid():
-            
+
             serializer.save(name=request.user.username, user_id=request.user.pk,is_active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
