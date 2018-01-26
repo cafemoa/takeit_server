@@ -82,6 +82,7 @@ class User(BaseUser):
 
 def cafe_directory_path(instance, filename):
     return 'cafe/{0}/profile/{1}'.format(instance.username, filename)
+
 class Cafe(BaseUser):
     cafe_image = models.ImageField(upload_to=cafe_directory_path, null=True)
     tag=models.CharField(max_length=50, default="")
@@ -89,7 +90,7 @@ class Cafe(BaseUser):
     locationY = models.FloatField()
     locationString=models.CharField(max_length=50)
     is_open=models.BooleanField(default=False)
-    can_use_coupon=models.BooleanField(default=True)
+    coupon_price=models.IntegerField(default=0)
     min_time=models.IntegerField(default=0)
     the_pay_order_num=models.IntegerField(default=0)
 
@@ -103,7 +104,6 @@ class Beverage(models.Model):
     image = models.ImageField(upload_to=beverage_directory_path, null=True)
     price=models.CharField(max_length=50)
     is_best=models.BooleanField(default=False)
-    coupon_payment=models.BooleanField(default=False)
     have_shot=models.BooleanField(default=False)
     add_shot_price=models.IntegerField(default=0)
 
@@ -129,11 +129,11 @@ class Order(models.Model):
     order_num=models.IntegerField(default=0)
     get_time=models.IntegerField(default=0)
 
-    options=models.ManyToManyField('BeverageOrderOption')
+    beverages=models.ManyToManyField('BeverageOrderOption')
     PAYMENT_TYPE_CHOICE = (
         (0, '일반결제'),
-        (1, '쿠폰결제'),
-        (2, '이벤트결제')
+        (1, '휴대폰결제'),
+        (2, '계좌결제')
     )
     amount_price=models.IntegerField(default=0)
     payment_type=models.IntegerField(default=0,choices=PAYMENT_TYPE_CHOICE)
@@ -174,6 +174,7 @@ class Event(models.Model):
 
 class BeverageOrderOption(models.Model):
     beverage = models.ForeignKey(Beverage)
+    amount = models.IntegerField(default=1)
     size=models.IntegerField(default=0)
     shot_num = models.IntegerField(default=0)
     options = models.ManyToManyField('OptionSelection')

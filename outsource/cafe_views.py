@@ -1,5 +1,5 @@
 from outsource.models import Cafe,Order,Coupon,Beverage,User,Event,Alert
-from outsource.serializers import OrderSerializer,EventSerializer,AlertSerializer,CafeSerializer
+from outsource.serializers import OrderSerializer,EventSerializer,AlertSerializer,CafeSerializerForCafe
 from rest_framework.views import APIView
 import datetime
 from rest_framework.response import Response
@@ -132,5 +132,5 @@ class CafeViewSet(viewsets.ModelViewSet):
     queryset = Cafe.objects.all()
     def list(self, request): # GET : user-manage
         user = Cafe.objects.get(pk=request.user.pk)
-        serializers=CafeSerializer(user)
+        serializers=CafeSerializerForCafe(user)
         return Response(serializers.data)

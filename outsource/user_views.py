@@ -59,12 +59,13 @@ class CafeBeverageList(viewsets.ModelViewSet):
     def retrieve(self, request,cafe_pk): # GET : get_cafe_beverage
         cafe=Cafe.objects.get(pk=cafe_pk)
         queryset=cafe.beverages.all()
-        serializer = BeverageSerializer(queryset, many=True)
+        serializer = BeverageSerializer(queryset,many=True)
+
         return Response(serializer.data)
 
     def list(self, request): #  GET : get_cafes
         queryset=Cafe.objects.all()
-        serializers=CafeSerializer(queryset,many=True)
+        serializers=CafeSerializerForUser(queryset, context={'request' : request},many=True)
         return Response(serializers.data)
 
 
@@ -77,19 +78,19 @@ class BeverageOption(APIView):
 
 class UsersFavoriteCafe(viewsets.ModelViewSet):
     queryset = Cafe.objects.all()
-    serializer_class = CafeSerializer
+    serializer_class = CafeSerializerForUser
 
     def list(self, request):  # GET : get_favorite_cafe
         user = User.objects.get(pk=request.user.pk)
         queryset = user.favorite_cafe.all()
-        serializer = CafeSerializer(queryset, many=True)
+        serializer = CafeSerializerForUser(queryset, many=True)
         return Response(serializer.data)
 
     def update(self, request,cafe_pk): # POST : add_favorite_cafe
         user = User.objects.get(pk=request.user.pk)
         cafe=Cafe.objects.get(pk=cafe_pk)
         user.favorite_cafe.add(cafe)
-        serializer = CafeSerializer(cafe)
+        serializer = CafeSerializerForUser(cafe)
         return Response(serializer.data)
 
 class CouponViewSet(viewsets.ModelViewSet):
@@ -164,23 +165,27 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             amount_price=0
             for option_info in options:
-                for i in range(0,int(option_info['amount'])):
-                    option=BeverageOrderOption.objects.create(beverage_id=option_info['beverage'],
-                                                         size=option_info['size'],
-                                                         shot_num=option_info['shot_num'])
+                option=BeverageOrderOption.objects.create(beverage_id=option_info['beverage'],
+                                                     size=option_info['size'],
+                                                     amount=option_info['amount'],
+                                                     shot_num=option_info['shot_num'])
 
-                    for option_selection in option_info['selections']:
-                        optionSelction=OptionSelection.objects.get(id=option_selection)
-                        amount_price+=optionSelction.add_price
-                        option.options.add(option_selection)
+                for option_selection in option_info['selections']:
+                    optionSelction=OptionSelection.objects.get(id=option_selection)
+                    amount_price+=optionSelction.add_price
+                    option.options.add(option_selection)
 
-                    option.save()
+                option.save()
 
-                    order.options.add(option)
-                    size_price=option.beverage.price.split()
-                    price=size_price[option_info['size']]
-                    price=int(price.split(':')[1])
-                    amount_price += price
+                order.options.add(option)
+                size_price=option.beverage.price.split()
+                price=size_price[option_info['size']]
+                price=int(price.split(':')[1])
+                amount_price += price*option_info['amount']
+
+
+            if request.data.get('use_coupon'):
+                amount_price-=cafe.coupon_price
 
             order.amount_price=amount_price
             order.save()
@@ -198,17 +203,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                                                     'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
 
-            if cafe.can_use_coupon :
-                if order.payment_type==0 :
-                    coupon = Coupon.objects.filter(cafe=order.cafe, user=user)
-                    if coupon.count() == 0:
-                        coupon = Coupon.objects.create(cafe=order.cafe, user=user)
-                    else:
-                        coupon = coupon.first()
 
-                    coupon.coupon_progress += len(options)
-                    coupon.last_coupon_update = timezone.now()
-                    coupon.save()
+
+            if cafe.coupon_price > 0:
+                coupon = Coupon.objects.filter(cafe=order.cafe, user=user)
+                if coupon.count() == 0:
+                    coupon = Coupon.objects.create(cafe=order.cafe, user=user)
+                else:
+                    coupon = coupon.first()
+
+                coupon.coupon_progress += len(options)
+                coupon.last_coupon_update = timezone.now()
+                coupon.save()
+
 
             serializer = OrderSerializer(order)
             return Response(serializer.data,status=status.HTTP_201_CREATED)
