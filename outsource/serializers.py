@@ -111,9 +111,11 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
     cafe_name=serializers.SerializerMethodField('GetOrderCafeName')
     cafe_location = serializers.SerializerMethodField('GetOrderCafeLocation')
     menu_name=serializers.SerializerMethodField('GetOrderMenuName')
+    remain_order=serializers.SerializerMethodField('RemainOrder')
+    def RemainOrder(self, instance):
+        return instance.cafe.orders.filter(state__lt=2).count()
+    '''
     get_time = serializers.SerializerMethodField('GetTime')
-    def GetOrderCafeName(self, instance):
-        return instance.cafe.name
 
     def GetTime(self, instance):
         deltaTime=(int)(datetime.now().strftime('%s'))-(int)(instance.order_time.strftime('%s'))
@@ -122,6 +124,10 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
             return 0
 
         return int(get_time/60)
+    '''
+
+    def GetOrderCafeName(self, instance):
+        return instance.cafe.name
 
     def GetOrderCafeLocation(self, instance):
         return instance.cafe.locationString
@@ -147,7 +153,7 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Order
-        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'beverages', 'amount_price', 'order_num', 'cafe_name','cafe_location','menu_name','get_time')
+        fields = ( 'pk', 'order_time','payment_type', 'orderer_username', 'beverages', 'amount_price', 'order_num', 'cafe_name','cafe_location','menu_name','state','remain_order')
         read_only_fields = ('order_time','orderer_username', 'order_num', 'cafe_name','cafe_location','menu_name')
 
 

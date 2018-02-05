@@ -8,11 +8,16 @@ from fcm.utils import get_device_model
 from rest_framework import status
 from django.http import QueryDict
 
+READY=0
+MAKING=1
+DONE=2
+END=3
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     def list(self, request):  # GET : get_orders
         cafe = Cafe.objects.get(pk=request.user.pk)
-        queryset = cafe.orders.filter(is_done=False).order_by('-order_time')
+        queryset = cafe.orders.filter(state__lt=END).order_by('-order_time')
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -23,14 +28,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         cafeDevice = Device.objects.filter(user=order.orderer)
         if not cafeDevice.count() == 0:
             cafeDevice = cafeDevice.first()
-            if order.options.count() > 1:
-                cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및 " + str(
-                    order.options.count() - 1) + "잔" + '이 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
-            elif order.options.count() == 1:
-                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '(이)가 준비되었습니다!'}
+            if order.beverages.count() > 1:
+                cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + " 및 " + str(
+                    order.beverages.count() - 1) + "잔" + '이 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
+            elif order.beverages.count() == 1:
+                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 준비되었습니다!'}
                                             ,collapse_key="주문하신 음료가 준비되었습니다!")
 
-        order.is_done = True
+        order.state = DONE
         order.save()
         serializer=OrderSerializer(order)
         return Response(serializer.data)
@@ -88,16 +93,16 @@ class OrderSetMaking(APIView):
         cafeDevice = Device.objects.filter(user=order.orderer)
         if not cafeDevice.count() == 0:
             cafeDevice = cafeDevice.first()
-            if order.options.count() > 1:
+            if order.beverages.count() > 1:
                 cafeDevice.send_message(
-                    {'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + " 및 " + str(
-                        order.options.count() - 1) + "잔" + '이 제조중입니다!'}, collapse_key="주문하신 음료가 제조중입니다!")
-            elif order.options.count() == 1:
+                    {'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + " 및 " + str(
+                        order.beverages.count() - 1) + "잔" + '이 제조중입니다!'}, collapse_key="주문하신 음료가 제조중입니다!")
+            elif order.beverages.count() == 1:
                 cafeDevice.send_message({
-                                            'message': '[' + request.user.name + '] 주문하신 ' + order.options.first().beverage.name + '(이)가 제조중입니다!'}
+                                            'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 제조중입니다!'}
                                         , collapse_key="주문하신 음료가 제조중입니다!")
 
-        order.is_making = True
+        order.state = MAKING
         order.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data)
@@ -105,7 +110,7 @@ class OrderSetMaking(APIView):
 class OrderSetEnd(APIView):
     def post(self, request, pk):
         order=Order.objects.get(pk=pk)
-        order.is_end=True
+        order.state=END
         order.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data)

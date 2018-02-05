@@ -110,25 +110,31 @@ class ReadyPayment(APIView):
     def post(self,request,cafe_pk):
         first_name=""
         count_beverage=0
-        options = request.data.get('options')
+        beverages = request.data.get('beverages')
         cafe=Cafe.objects.get(pk=cafe_pk)
         last_order = Order.objects.filter(cafe=cafe)
         order_num=get_orderNum(last_order)
         cafe.the_pay_order_num += 1
         cafe.save()
         amount_price = 0
-        for option_info in options:
-            for i in range(0, int(option_info['amount'])):
-                beverage=Beverage.objects.get(pk=option_info['beverage'])
-                cafe_pk=beverage.cafe.pk
-                size_price = beverage.price.split()
-                price = size_price[option_info['size']]
-                price = int(price.split(':')[1])
-                amount_price += price
-                count_beverage+=1
+        for beverage in beverages:
+            beverage_model=Beverage.objects.get(pk=beverage['beverage_id'])
+            cafe_pk=beverage_model.cafe.pk
+            size_price = beverage_model.price.split()
+            price = size_price[beverage['size']]
+            price = int(price.split(':')[1])
+            amount_price += price * beverage['amount']
+            count_beverage+=1
 
-                if first_name=="":
-                    first_name=beverage.name
+            for option_selection in beverage['selections']:
+                optionSelction = OptionSelection.objects.get(id=option_selection)
+                amount_price += optionSelction.add_price
+
+            if first_name=="":
+                first_name=beverage_model.name
+
+        if request.data.get('use_coupon'):
+            amount_price -= cafe.coupon_price
 
         order_num=str(cafe_pk)+"_"+datetime.datetime.now().strftime("%Y%m%d")+"_"+str(order_num)+"_"+str(cafe.the_pay_order_num)
         now_time = datetime.date.today()
@@ -161,27 +167,27 @@ class OrderViewSet(viewsets.ModelViewSet):
             cafe.the_pay_order_num = 0
             cafe.save()
 
-            options = request.data.get('options')
+            beverages = request.data.get('beverages')
 
             amount_price=0
-            for option_info in options:
-                option=BeverageOrderOption.objects.create(beverage_id=option_info['beverage'],
-                                                     size=option_info['size'],
-                                                     amount=option_info['amount'],
-                                                     shot_num=option_info['shot_num'])
+            for beverage in beverages:
+                option=BeverageOrderOption.objects.create(beverage_id=beverage['beverage_id'],
+                                                     size=beverage['size'],
+                                                     amount=beverage['amount'],
+                                                     shot_num=beverage['shot_num'])
 
-                for option_selection in option_info['selections']:
+                for option_selection in beverage['selections']:
                     optionSelction=OptionSelection.objects.get(id=option_selection)
                     amount_price+=optionSelction.add_price
                     option.options.add(option_selection)
 
                 option.save()
 
-                order.options.add(option)
+                order.beverages.add(option)
                 size_price=option.beverage.price.split()
-                price=size_price[option_info['size']]
+                price=size_price[beverage['size']]
                 price=int(price.split(':')[1])
-                amount_price += price*option_info['amount']
+                amount_price += price*beverage['amount']
 
 
             if request.data.get('use_coupon'):
@@ -194,13 +200,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             cafeDevice = Device.objects.filter(user=cafe)
             if not cafeDevice.count()==0 :
                 cafeDevice=cafeDevice.first()
-                if order.options.count() > 1:
+                if order.beverages.count() > 1:
                     cafeDevice.send_message({'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' +
-                                                        order.options.first().beverage.name + " 및 " + str(order.options.count() - 1) + "잔" + '이 주문되었습니다!'},
+                                                        order.beverages.first().beverage.name + " 및 " + str(order.beverages.count() - 1) + "잔" + '이 주문되었습니다!'},
                                                 collapse_key="음료가 주문되었습니다!")
-                elif order.options.count() == 1:
+                elif order.beverages.count() == 1:
                         cafeDevice.send_message({
-                                                    'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' + order.options.first().beverage.name + '(이)가 주문되었습니다!'}
+                                                    'message': '[' + order.order_time.strftime('%Y-%m-%d') + '] ' + order.beverages.first().beverage.name + '(이)가 주문되었습니다!'}
                                                 , collapse_key="음료가 주문되었습니다!")
 
 
@@ -212,7 +218,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 else:
                     coupon = coupon.first()
 
-                coupon.coupon_progress += len(options)
+                coupon.coupon_progress += len(beverages)
                 coupon.last_coupon_update = timezone.now()
                 coupon.save()
 
@@ -234,7 +240,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def retrieve(self,request,coupon_pk): # GET : recent_payment_list_by_order
         coupon = Coupon.objects.get(pk=coupon_pk)
-        queryset = Order.objects.filter(orderer=coupon.user, cafe=coupon.cafe, is_done=True).order_by('-order_time')
+        queryset = Order.objects.filter(orderer=coupon.user, cafe=coupon.cafe, state=3).order_by('-order_time')
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 

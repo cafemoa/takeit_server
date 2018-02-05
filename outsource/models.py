@@ -123,9 +123,13 @@ class Order(models.Model):
     order_time=models.DateTimeField(auto_now_add=True)
     orderer=models.ForeignKey(User,related_name='orders')
     cafe = models.ForeignKey(Cafe,related_name="orders")
-    is_done=models.BooleanField(default=False)
-    is_making = models.BooleanField(default=False)
-    is_end = models.BooleanField(default=False)
+    STATE_TYPE_CHOICE=(
+        (0, '준비중'),
+        (1, '제조중'),
+        (2, '제조완료'),
+        (3, '주문종료')
+    )
+    state=models.IntegerField(default=0)
     order_num=models.IntegerField(default=0)
     get_time=models.IntegerField(default=0)
 
@@ -139,13 +143,13 @@ class Order(models.Model):
     payment_type=models.IntegerField(default=0,choices=PAYMENT_TYPE_CHOICE)
 
     def __str__(self):
-        if self.options.count()>1 :
-            return self.orderer.username + "->" + self.cafe.name + "(" + self.options.first().beverage.name + " 및"+str(self.options.count()-1)+" 개)"
+        if self.beverages.count()>1 :
+            return self.orderer.username + "->" + self.cafe.name + "(" + self.beverages.first().beverage.name + " 및"+str(self.beverages.count()-1)+" 개)"
         else :
-            if self.options.count()==0 :
+            if self.beverages.count()==0 :
                 return self.orderer.username + "->" + self.cafe.name
 
-            return self.orderer.username + "->" + self.cafe.name+"("+self.options.first().beverage.name+")"
+            return self.orderer.username + "->" + self.cafe.name+"("+self.beverages.first().beverage.name+")"
 
 class Coupon(models.Model):
     last_coupon_update=models.DateTimeField(auto_now_add=True)
