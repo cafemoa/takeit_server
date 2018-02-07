@@ -101,7 +101,7 @@ def beverage_directory_path(instance, filename):
 class Beverage(models.Model):
     cafe=models.ForeignKey(Cafe, related_name="beverages")
     name=models.CharField(max_length=30)
-    image = models.ImageField(upload_to=beverage_directory_path, null=True)
+    image = models.ImageField(upload_to=beverage_directory_path, null=True, blank=True)
     price=models.CharField(max_length=50)
     is_best=models.BooleanField(default=False)
     have_shot=models.BooleanField(default=False)
@@ -189,7 +189,7 @@ class BeverageOption(models.Model):
     one_selector=models.BooleanField(default=False)
 
     def __str__(self):
-        return self.beverage.name+"의 "+self.content
+        return self.beverage.cafe.name+self.beverage.name+"의 "+self.content
 
 class OptionSelection(models.Model):
     beverageOption = models.ForeignKey(BeverageOption, related_name='selections')

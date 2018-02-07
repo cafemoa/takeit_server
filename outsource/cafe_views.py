@@ -30,9 +30,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             cafeDevice = cafeDevice.first()
             if order.beverages.count() > 1:
                 cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + " 및 " + str(
-                    order.beverages.count() - 1) + "잔" + '이 준비되었습니다!'}, collapse_key="주문하신 음료가 준비되었습니다!")
+                    order.beverages.count() - 1) + "잔" + '이 준비되었습니다!', 'code':2}, collapse_key="주문하신 음료가 준비되었습니다!")
             elif order.beverages.count() == 1:
-                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 준비되었습니다!'}
+                    cafeDevice.send_message({'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 준비되었습니다!','code':2}
                                             ,collapse_key="주문하신 음료가 준비되었습니다!")
 
         order.state = DONE
@@ -96,10 +96,10 @@ class OrderSetMaking(APIView):
             if order.beverages.count() > 1:
                 cafeDevice.send_message(
                     {'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + " 및 " + str(
-                        order.beverages.count() - 1) + "잔" + '이 제조중입니다!'}, collapse_key="주문하신 음료가 제조중입니다!")
+                        order.beverages.count() - 1) + "잔" + '이 제조중입니다!', 'code' : 1}, collapse_key="주문하신 음료가 제조중입니다!")
             elif order.beverages.count() == 1:
                 cafeDevice.send_message({
-                                            'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 제조중입니다!'}
+                                            'message': '[' + request.user.name + '] 주문하신 ' + order.beverages.first().beverage.name + '(이)가 제조중입니다!', 'code' : 1}
                                         , collapse_key="주문하신 음료가 제조중입니다!")
 
         order.state = MAKING
