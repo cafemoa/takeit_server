@@ -6,7 +6,7 @@ Django==1.11.18
 django-allauth==0.33.0
 django-fcm==0.1.1
 django-rest-auth==0.9.1
-djangorestframework==3.6.3
+djangorestframework==3.11.2
 djangorestframework-jwt==1.11.0
 facebook-sdk==2.0.0
 fcm-django==0.2.11
