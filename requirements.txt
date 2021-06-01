@@ -26,5 +26,5 @@ rest-social-auth==1.1.0
 six==1.10.0
 social-auth-app-django==0.1.0
 social-auth-core==0.2.1
-urllib3==1.21.1
+urllib3==1.26.5
 uWSGI==2.0.15
